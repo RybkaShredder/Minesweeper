@@ -70,7 +70,7 @@ def get_expected_mines(board):
                 num = 0
     return exp_mines
 # Random General Cases
-
+'''
 true_board = [[2, 2, 9, 9, 2],
               [1, 1, 3, 9, 2],
               [0, 0, 1, 1, 1],
@@ -79,10 +79,10 @@ true_board = [[2, 2, 9, 9, 2],
 
 five_by_five = [[-1, -1, -1, -1, -1],
                 [1, 1, 3, -1, -1],
-                [0, 0, 2, 1, -1],
+                [0, 0, 1, 1, -1],
                 [0, 0, 0, 1, -1],
                 [0, 0, 1, 3, -1]]
-
+'''
 '''
 true_board = [[0, 2, 9, 9, 3],
               [0, 2, 9, 3, 3],
@@ -106,7 +106,7 @@ five_by_five = [[0, 2, -1, -1, -1],
 
 ### Additionally, if I shift the grid one to the left or right, the algorithm
 ### can figure out where the bomb actually is
-'''
+
 true_board = [[1, 0, 0, 0, 1],
               [1, 0, 0, 0, 1],
               [2, 1, 2, 1, 2],
@@ -115,10 +115,10 @@ true_board = [[1, 0, 0, 0, 1],
 
 five_by_five = [[1, 0, 0, 0, 1],
                 [1, 0, 0, 0, 1],
-                [2, 1, 2, 1, 2],
+                [1, 1, 1, 1, 1],
                 [-1, -1, -1, -1, -1],
                 [-1, -1, -1, -1, -1]]
-'''
+
 
 file_name = "Five_by_five.txt"
 
@@ -136,19 +136,63 @@ print(get_expected_mines(five_by_five))
 print ('\n')
 exp = get_expected_mines(five_by_five)
 treshold = 1.5
-pOvershoot = .1
-pUndershoot = .2
+pOvershoot = 0
+pUndershoot = 0
 
-heat_map = [[0 for i in range(len(five_by_five))] for i in range(len(five_by_five[0]))]
+count = 0
+for row in range(len(five_by_five) - 2):
+    for col in range(len(five_by_five[0]) - 2):
+        if len(get_unk_neighbors([[row + 1, col + 1]], five_by_five)) > 0 and five_by_five[row + 1][col + 1] != -1:
+            count += 1
+            print ([row + 1, col + 1])
+print (count)
+heat_maps = [[[0 for i in range(len(five_by_five))] for i in range(len(five_by_five[0]))] for i in range(count)]
+for board in heat_maps:
+    for line in board: print(line)
+    print('\n')
+count = 0
+for row in range(len(five_by_five) - 2):
+    for col in range(len(five_by_five[0]) - 2):
+        if len(get_unk_neighbors([[row + 1, col + 1]], five_by_five)) > 0 and five_by_five[row + 1][col + 1] != -1:
+            neighbors = get_unk_neighbors([[row + 1, col + 1]], five_by_five)
+            for coord in neighbors:
+                heat_maps[count][coord[0]][coord[1]] += (five_by_five[row + 1][col + 1]/len(neighbors)) * (1 - pUndershoot - pOvershoot)
+                
+                for i in range(len(heat_maps[0])):
+                    for j in range(len(heat_maps[0][0])):
+                        if heat_maps[count][i][j] == 0: heat_maps[count][i][j] = 10**-1
+            count += 1    
 
+for board in heat_maps:
+    for line in board: print(line)
+    print('\n')
+'''
+count = 0
 for row in range(len(five_by_five) - 2):
     for col in range(len(five_by_five[0]) - 2):
         if five_by_five[row + 1][col + 1] > 0:
              neighbors = get_unk_neighbors([[row + 1, col + 1]], five_by_five)
              for coord in neighbors:
-                heat_map[coord[0]][coord[1]] += (five_by_five[row + 1][col + 1]/len(neighbors)) * (1 - pUndershoot - pOvershoot)
-                heat_map[coord[0]][coord[1]] += ((five_by_five[row + 1][col + 1] - 1)/len(neighbors)) * pOvershoot
-                heat_map[coord[0]][coord[1]] += ((five_by_five[row + 1][col + 1] + 1)/len(neighbors)) * pUndershoot
+                if count == 0:
+                    heat_map[coord[0]][coord[1]] = (five_by_five[row + 1][col + 1]/len(neighbors)) * (1 - pUndershoot - pOvershoot)*1000
+                    if (five_by_five[row + 1][col + 1]/len(neighbors)) * (1 - pUndershoot - pOvershoot) == 0:
+                        heat_map[coord[0]][coord[1]] = 1
+
+                elif (five_by_five[row + 1][col + 1]/len(neighbors)) * (1 - pUndershoot - pOvershoot) == 0:
+                    heat_map[coord[0]][coord[1]] *= 1
+                else:heat_map[coord[0]][coord[1]] *= (five_by_five[row + 1][col + 1]/len(neighbors)) * (1000 - pUndershoot - pOvershoot)
+                count += 1
+                #heat_map[coord[0]][coord[1]] += ((five_by_five[row + 1][col + 1] - 1)/len(neighbors)) * pOvershoot
+                #heat_map[coord[0]][coord[1]] += ((five_by_five[row + 1][col + 1] + 1)/len(neighbors)) * pUndershoot
+'''
+
+heat_map = [[0 for i in range(5)] for i in range(5)]
+for board in range(len(heat_maps)):
+    for row in range(len(heat_maps[0])):
+        for col in range(len(heat_maps[0][0])):
+            if board == 0: heat_map[row][col] = heat_maps[board][row][col]
+            else: heat_map[row][col] *= heat_maps[board][row][col]
+              
 
 for line in heat_map:
     print (line)
