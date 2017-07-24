@@ -1,4 +1,4 @@
-# Minesweeper
+# MinesweepingBots
 
 This is a project that I started in June 2017 as a part of the UMD FIRE AUSS Summer Fellowship.
 
